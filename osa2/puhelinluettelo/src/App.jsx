@@ -1,5 +1,38 @@
 import { useState } from 'react'
 
+const Filter = (props) => (
+        <form>
+        <div>
+          filter shown with<input value={props.filter}
+          onChange={props.handleFiltering}/>
+        </div>
+      </form>
+    )
+
+const PersonForm = (props) => (
+      <form onSubmit={props.addPerson}>
+            <div>
+              name: <input value={props.newName}
+              onChange={props.handleNameChange}/>
+            </div>
+            <div>
+              number: <input value={props.newNumber}
+              onChange={props.handleNumberChange}/>
+            </div>
+            <div>
+              <button type="submit">add</button>
+            </div>
+          </form>
+)
+
+const Persons = (props) => (
+      <ul>
+        {props.personsToShow.map(person =>
+          <li key={person.name}> {person.name} {person.number}</li>
+        )}
+      </ul>
+)
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456' },
@@ -46,32 +79,17 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <form>
-        <div>
-          filter shown with<input value={filter}
-          onChange={handleFiltering}/>
-        </div>
-      </form>
-      <h2>add a new</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input value={newName}
-          onChange={handleNameChange}/>
-        </div>
-        <div>
-          number: <input value={newNumber}
-          onChange={handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      <ul>
-        {personsToShow.map(person =>
-          <li key={person.name}> {person.name} {person.number}</li>
-        )}
-      </ul>
+      
+      <Filter handleFiltering={handleFiltering}/>
+
+      <h3>add a new</h3>
+      
+      <PersonForm handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} addPerson={addPerson}/>
+
+      <h3>Numbers</h3>
+      
+      <Persons personsToShow={personsToShow}/>
+
     </div>
   )
 
