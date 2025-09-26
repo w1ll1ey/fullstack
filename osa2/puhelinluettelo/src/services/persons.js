@@ -22,4 +22,11 @@ const remove = (id) => {
   });
 };
 
-export default { getAll, create, remove };
+const edit = (id, updatedPerson) => {
+  const request = axios.put(`${baseUrl}/${id}`, updatedPerson);
+  return request.then((response) => {
+    return response.data;
+  });
+};
+
+export default { getAll, create, remove, edit };
