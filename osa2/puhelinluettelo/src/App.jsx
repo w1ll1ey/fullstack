@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
 
 const Filter = (props) => (
@@ -30,7 +29,7 @@ const PersonForm = (props) => (
 const Persons = (props) => (
       <ul>
         {props.personsToShow.map(person =>
-          <li key={person.name}> {person.name} {person.number}</li>
+          <li key={person.id}> {person.name} {person.number} <button onClick={() => props.remove(person.id, person.name)}>delete</button></li>
         )}
       </ul>
 )
@@ -73,6 +72,16 @@ const App = () => {
         })
   }
 
+  const remove = (id, name) => {
+    if (confirm(`Delete ${name}?`)) {
+    personService
+      .remove(id)
+        .then(removedPerson => {
+          setPersons(persons.filter(p =>
+            p.id !== removedPerson.id
+          ))
+        })}}
+
   const handleNameChange = (event) => {
     setNewName(event.target.value)
   }
@@ -97,7 +106,7 @@ const App = () => {
 
       <h3>Numbers</h3>
       
-      <Persons personsToShow={personsToShow}/>
+      <Persons personsToShow={personsToShow} remove={remove}/>
 
     </div>
   )
