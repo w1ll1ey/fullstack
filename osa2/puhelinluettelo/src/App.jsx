@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
+import './index.css'
 
 const Filter = (props) => (
         <form>
@@ -34,11 +35,33 @@ const Persons = (props) => (
       </ul>
 )
 
+const Notification = ({ notification, clearMessage }) => {
+  if (notification === '') {
+    return null
+  }
+
+  useEffect(() => {
+    const clear = setTimeout(() => {
+      clearMessage()
+    }, 3000)
+
+    return () => clearTimeout(clear)
+  }, [notification, clearMessage])
+
+  return (
+    <div className="notification">
+    {notification}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [notification, setNotification] = useState('')
+  const clearMessage = () => setNotification('')
 
   const personsToShow = persons.filter ((person) => person.name.toLowerCase().includes(filter))
 
@@ -66,6 +89,7 @@ const App = () => {
        .edit(existingPerson.id, updatedPerson)
         .then(updated => {
           setPersons(persons.map(person => person.id !== existingPerson.id ? person : updated))})
+          setNotification(`Edited ${updatedPerson.name}`)
       return
     }
     
@@ -75,6 +99,7 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+          setNotification(`Added ${returnedPerson.name}`)
         })
   }
 
@@ -86,6 +111,7 @@ const App = () => {
           setPersons(persons.filter(p =>
             p.id !== removedPerson.id
           ))
+          setNotification(`Removed ${removedPerson.name}`)
         })}}
 
   const handleNameChange = (event) => {
@@ -103,6 +129,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification notification={notification} clearMessage={clearMessage}/>
       
       <Filter handleFiltering={handleFiltering}/>
 
