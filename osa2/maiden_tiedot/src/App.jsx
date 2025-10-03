@@ -46,7 +46,7 @@ const Information = (props) => {
   return (
     <ul>
       {props.countries.map(country =>
-        <li key={country.cca2}> {country.name.common}</li>
+        <li key={country.cca2}> {country.name.common} <button onClick={() => props.edit(country.name.common)}>Show</button></li>
       )}
     </ul>
   )
@@ -64,7 +64,7 @@ const App = () => {
       })
   }, [])
 
-  const countriesToShow = countries.filter ((country) => country.name.common.toLowerCase().includes(filter))
+  const countriesToShow = countries.filter ((country) => country.name.common.toLowerCase().includes(filter.toLowerCase()))
 
   const handleCountry = (event) => {
     setCountry(event.target.value)
@@ -74,7 +74,7 @@ const App = () => {
     <div>
       <CountryForm country={filter} handleCountry={handleCountry}/>
 
-      <Information countries={countriesToShow}/>
+      <Information countries={countriesToShow} edit={setCountry}/>
     </div>
     )  
   }
