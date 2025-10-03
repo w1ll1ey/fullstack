@@ -10,6 +10,24 @@ const CountryForm = (props) => (
     </form>
 )
 
+const Weather = (props) => {
+  if (props.weather.length === 0) return null
+
+    return (
+      <div>
+        <h2>Weather in {props.weather.name}</h2>
+
+        Temperature {props.weather.main.temp} Celsius
+        <br/>
+        <img 
+          src={`https://openweathermap.org/img/wn/${props.weather.weather[0].icon}.png`}
+        />
+        <br/>
+        Wind {props.weather.wind.speed} m/s
+      </div>
+  )}
+
+
 const Information = (props) => {
   if (props.countries.length > 10) {
     return (
@@ -21,6 +39,16 @@ const Information = (props) => {
 
   if (props.countries.length === 1) {
     const country = props.countries[0]
+    const weather_key = import.meta.env.VITE_WEATHER_KEY
+
+    useEffect(() => {
+    axios
+      .get(`https://api.openweathermap.org/data/2.5/weather?q=${country.name.common}&appid=${weather_key}&units=metric`)
+      .then(response => {
+        props.setWeather(response.data)
+      })
+  }, [props.countries])
+
     return (
       <div>
         <h1>{country.name.common}</h1>
@@ -39,6 +67,8 @@ const Information = (props) => {
 
         <img src={country.flags.png}/>
 
+        <Weather weather={props.weather}/>
+
       </div>
     )
   }
@@ -55,6 +85,7 @@ const Information = (props) => {
 const App = () => {
   const [countries, setCountries] = useState([])
   const [filter, setCountry] = useState('')
+  const [weather, setWeather] = useState([])
 
   useEffect(() => {
     axios
@@ -74,7 +105,7 @@ const App = () => {
     <div>
       <CountryForm country={filter} handleCountry={handleCountry}/>
 
-      <Information countries={countriesToShow} edit={setCountry}/>
+      <Information countries={countriesToShow} edit={setCountry} weather={weather} setWeather={setWeather}/>
     </div>
     )  
   }
