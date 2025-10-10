@@ -57,6 +57,26 @@ app.delete("/api/persons/:id", (request, response) => {
 
 app.post("/api/persons", (request, response) => {
   const person = request.body;
+  const same = (old) => old.name === person.name;
+
+  if (!person.name) {
+    return response.status(400).json({
+      error: "name missing",
+    });
+  }
+
+  if (!person.number) {
+    return response.status(400).json({
+      error: "number missing",
+    });
+  }
+
+  if (persons.some(same)) {
+    return response.status(400).json({
+      error: "name must be unique",
+    });
+  }
+
   person.id = String(Math.floor(Math.random() * 1000000));
   persons = persons.concat(person);
   response.json(person);
