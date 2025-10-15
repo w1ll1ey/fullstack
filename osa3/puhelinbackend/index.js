@@ -68,16 +68,16 @@ app.delete("/api/persons/:id", (request, response) => {
 });
 
 app.post("/api/persons", (request, response) => {
-  const person = request.body;
-  const same = (old) => old.name === person.name;
+  const body = request.body;
+  const same = (old) => old.name === body.name;
 
-  if (!person.name) {
+  if (!body.name) {
     return response.status(400).json({
       error: "name missing",
     });
   }
 
-  if (!person.number) {
+  if (!body.number) {
     return response.status(400).json({
       error: "number missing",
     });
@@ -89,9 +89,14 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
-  person.id = String(Math.floor(Math.random() * 1000000));
-  persons = persons.concat(person);
-  response.json(person);
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  });
+
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
 const PORT = process.env.PORT;
