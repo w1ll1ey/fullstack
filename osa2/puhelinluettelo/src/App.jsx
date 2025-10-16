@@ -126,11 +126,11 @@ const App = () => {
     if (confirm(`Delete ${name}?`)) {
     personService
       .remove(id)
-        .then(removedPerson => {
+        .then(() => {
           setPersons(persons.filter(p =>
-            p.id !== removedPerson.id
+            p.id !== id
           ))
-          setNotification(`Removed ${removedPerson.name}`)
+          setNotification(`Removed ${name}`)
         })
         .catch(error => {
           setError(true)
