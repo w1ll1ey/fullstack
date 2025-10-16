@@ -118,7 +118,7 @@ const App = () => {
         })
         .catch(error => {
           setError(true)
-          setNotification(`Couldn't add ${newName}`)
+          setNotification(error.response.data.error)
         })
   }
 

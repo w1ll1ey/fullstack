@@ -17,11 +17,12 @@ mongoose
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "name missing"],
+    minlength: 3,
+    required: true,
   },
   number: {
     type: String,
-    required: [true, "number missing"],
+    required: true,
   },
 });
 
