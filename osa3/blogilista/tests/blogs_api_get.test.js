@@ -26,6 +26,17 @@ test('api returns the right amount of blogs', async () => {
     assert.strictEqual(response.body.length, helper.testBlogs.length)
 })
 
+test.only('api returns blogs with an identifier called id', async () => {
+    await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect(response => {
+            response.body.forEach(blog => {
+                assert.ok(blog.id)
+            })
+        })
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
