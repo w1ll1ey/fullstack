@@ -103,6 +103,22 @@ test('blog object without url returns status code 400', async () => {
         .expect(400)
 })
 
+test.only('a blog can be deleted', async () => {
+    const blogsAtStart = await helper.blogsinDB()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+    const blogsAfterDelete = await helper.blogsinDB()
+
+    const contents = blogsAfterDelete.map(n => n.title)
+    assert(!contents.includes(blogToDelete.title))
+
+    assert.strictEqual(blogsAfterDelete.length, helper.testBlogs.length - 1)
+})
+
 
 
 after(async () => {
