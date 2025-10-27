@@ -26,7 +26,7 @@ test('api returns the right amount of blogs', async () => {
     assert.strictEqual(response.body.length, helper.testBlogs.length)
 })
 
-test.only('api returns blogs with an identifier called id', async () => {
+test('api returns blogs with an identifier called id', async () => {
     await api
         .get('/api/blogs')
         .expect(200)
@@ -35,6 +35,27 @@ test.only('api returns blogs with an identifier called id', async () => {
                 assert.ok(blog.id)
             })
         })
+})
+
+test('a valid blog object can be added', async () => {
+    const newBlog = {
+        title: "Presidentin elämää 5",
+        author: "Alex Stubbi",
+        url: "http://www.alexstubbi.fi/inflensser/antreprenuuialmind",
+        likes: 6224
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAfterAdding = await helper.blogsinDB()
+    assert.strictEqual(blogsAfterAdding.length, helper.testBlogs.length + 1)
+
+    const contents = blogsAfterAdding.map(n => n.title)
+    assert(contents.includes('Presidentin elämää 5'))
 })
 
 after(async () => {

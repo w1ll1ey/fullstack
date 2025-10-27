@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE-ENV=production node index.js",
-    "dev": "cross-env NODE-ENV=development node --watch index.js",
-    "test": "cross-env NODE-ENV=test node --test"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development node --watch index.js",
+    "test": "cross-env NODE_ENV=test node --test"
   },
   "author": "Vili-Ilari Kaisto",
   "license": "MIT",
