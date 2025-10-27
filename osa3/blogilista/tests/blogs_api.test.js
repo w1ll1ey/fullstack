@@ -58,7 +58,7 @@ test('a valid blog object can be added', async () => {
     assert(contents.includes('Presidentin elämää 5'))
 })
 
-test.only('blog object without likes defaults to 0 likes', async () => {
+test('blog object without likes defaults to 0 likes', async () => {
     const newBlog = {
         title: "Presidentin elämää 5",
         author: "Alex Stubbi",
@@ -76,6 +76,34 @@ test.only('blog object without likes defaults to 0 likes', async () => {
 
     assert.strictEqual(zerolikesBlog.likes, 0)
 })
+
+test('blog object without title returns status code 400', async () => {
+    const newBlog1 = {
+        title: "Presidentin elämää 5",
+        url: "http://www.alexstubbi.fi/inflensser/antreprenuuialmind",
+        likes: 6224
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog1)
+        .expect(400)
+})
+
+test('blog object without url returns status code 400', async () => {
+    const newBlog2 = {
+        title: "Presidentin elämää 6",
+        author: "Alex Stubbi",
+        likes: 6224
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog2)
+        .expect(400)
+})
+
+
 
 after(async () => {
     await mongoose.connection.close()
