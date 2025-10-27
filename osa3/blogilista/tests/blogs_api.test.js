@@ -58,6 +58,25 @@ test('a valid blog object can be added', async () => {
     assert(contents.includes('Presidentin elämää 5'))
 })
 
+test.only('blog object without likes defaults to 0 likes', async () => {
+    const newBlog = {
+        title: "Presidentin elämää 5",
+        author: "Alex Stubbi",
+        url: "http://www.alexstubbi.fi/inflensser/antreprenuuialmind"
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+    
+    const blogsAfterAdding = await helper.blogsinDB()
+    const zerolikesBlog = blogsAfterAdding.find(n => n.title === newBlog.title)
+
+    assert.strictEqual(zerolikesBlog.likes, 0)
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
