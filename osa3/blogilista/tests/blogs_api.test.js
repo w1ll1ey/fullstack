@@ -103,7 +103,7 @@ test('blog object without url returns status code 400', async () => {
         .expect(400)
 })
 
-test.only('a blog can be deleted', async () => {
+test('a blog can be deleted', async () => {
     const blogsAtStart = await helper.blogsinDB()
     const blogToDelete = blogsAtStart[0]
 
@@ -119,7 +119,29 @@ test.only('a blog can be deleted', async () => {
     assert.strictEqual(blogsAfterDelete.length, helper.testBlogs.length - 1)
 })
 
+test('all fields of a blog can be edited', async () => {
+    const blogsAtStart = await helper.blogsinDB()
+    const blogToEdit = blogsAtStart[0]
 
+    const newFields = {
+        title: "Presidentin elämää 5",
+        author: "Alex Stubbi",
+        url: "http://www.alexstubbi.fi/inflensser/antreprenuuialmind",
+        likes: 6224
+    }
+
+    await api
+        .put(`/api/blogs/${blogToEdit.id}`)
+        .send(newFields)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAfterEdit = await helper.blogsinDB()
+    assert.strictEqual(blogsAfterEdit.length, helper.testBlogs.length)
+
+    const contents = blogsAfterEdit.map(n => n.title)
+    assert(contents.includes('Presidentin elämää 5'))
+})
 
 after(async () => {
     await mongoose.connection.close()
