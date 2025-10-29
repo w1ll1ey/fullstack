@@ -7,4 +7,12 @@ const tokenExtractor = (request, response, next) => {
     next()
 }
 
-module.exports = { tokenExtractor }
+const errorHandler = (error, request, response, next) => {
+    if (error.name === 'JsonWebTokenError') {
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    next(error)
+}
+
+module.exports = { tokenExtractor, errorHandler }
