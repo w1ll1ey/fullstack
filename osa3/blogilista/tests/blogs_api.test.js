@@ -2,15 +2,31 @@ const { test, after, beforeEach } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const api = supertest(app)
 
+let testUserId
+
 beforeEach(async () => {
     await Blog.deleteMany({})
-    await Blog.insertMany(helper.testBlogs)
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({username: 'root', passwordHash})
+    const savedUser = await user.save()
+    testUserId = savedUser._id.toString()
+
+    blogswithUser = helper.testBlogs.map(blog => ({
+        ...blog,
+        user: testUserId
+    }))
+
+    await Blog.insertMany(blogswithUser)
 })
 
 test('blogs are returned as json', async () => {
@@ -42,11 +58,20 @@ test('a valid blog object can be added', async () => {
         title: "Presidentin elämää 5",
         author: "Alex Stubbi",
         url: "http://www.alexstubbi.fi/inflensser/antreprenuuialmind",
-        likes: 6224
+        likes: 6224,
+        user: testUserId
     }
+
+    const loginResponse = await api
+        .post('/api/login')
+        .send({ username: 'root', password: 'sekret' })
+        .expect(200)
+
+    const token = loginResponse.body.token
 
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -65,8 +90,16 @@ test('blog object without likes defaults to 0 likes', async () => {
         url: "http://www.alexstubbi.fi/inflensser/antreprenuuialmind"
     }
 
+    const loginResponse = await api
+        .post('/api/login')
+        .send({ username: 'root', password: 'sekret' })
+        .expect(200)
+
+    const token = loginResponse.body.token
+
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -84,8 +117,16 @@ test('blog object without title returns status code 400', async () => {
         likes: 6224
     }
 
+    const loginResponse = await api
+        .post('/api/login')
+        .send({ username: 'root', password: 'sekret' })
+        .expect(200)
+
+    const token = loginResponse.body.token
+
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog1)
         .expect(400)
 })
@@ -97,18 +138,52 @@ test('blog object without url returns status code 400', async () => {
         likes: 6224
     }
 
+    const loginResponse = await api
+        .post('/api/login')
+        .send({ username: 'root', password: 'sekret' })
+        .expect(200)
+
+    const token = loginResponse.body.token
+
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog2)
         .expect(400)
+})
+
+test('adding blog without a token returns status code 401', async () => {
+        const newBlog = {
+        title: "Presidentin elämää 5",
+        author: "Alex Stubbi",
+        url: "http://www.alexstubbi.fi/inflensser/antreprenuuialmind",
+        likes: 6224,
+        user: testUserId
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
+
+    const blogsAfterAdding = await helper.blogsinDB()
+    assert.strictEqual(blogsAfterAdding.length, helper.testBlogs.length)
 })
 
 test('a blog can be deleted', async () => {
     const blogsAtStart = await helper.blogsinDB()
     const blogToDelete = blogsAtStart[0]
 
+    const loginResponse = await api
+        .post('/api/login')
+        .send({ username: 'root', password: 'sekret' })
+        .expect(200)
+
+    const token = loginResponse.body.token
+
     await api
         .delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204)
 
     const blogsAfterDelete = await helper.blogsinDB()
