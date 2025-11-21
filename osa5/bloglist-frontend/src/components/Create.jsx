@@ -1,12 +1,40 @@
+import { useState } from 'react'
+
 const CreateForm = ({
-    handleSubmit,
-    title,
-    author,
-    url,
-    setTitle,
-    setAuthor,
-    setUrl
+    blogService,
+    blogs,
+    setBlogs,
+    setNotification,
+    setError,
+    createFormRef
 }) => {
+    const [title, setTitle] = useState('')
+    const [author, setAuthor] = useState('')
+    const [url, setUrl] = useState('')
+
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+
+        try {
+            const newBlog = await blogService.create({ title, author, url })
+            createFormRef.current.toggleVisibility()
+            setBlogs(blogs.concat(newBlog))
+            setTitle('')
+            setAuthor('')
+            setUrl('')
+            setNotification(`A new blog ${newBlog.title} by ${newBlog.author} added`)
+            setError(false)
+            setTimeout(() => {
+                setNotification(null)
+            }, 5000)
+        } catch {
+            setNotification('Could not add the blog')
+            setError(true)
+            setTimeout(() => {
+                setNotification(null)
+            }, 5000)
+        }
+    }
 
     return (
         <div>
