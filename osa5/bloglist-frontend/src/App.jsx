@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import './index.css'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -11,6 +13,8 @@ const App = () => {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
   const [user, setUser] = useState(null)
+  const [notification, setNotification] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -29,15 +33,25 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
+    try {
+      const user = await loginService.login({
+        username, password
+      })
 
-    const user = await loginService.login({ username, password })
-    blogService.setToken(user.token)
-    window.localStorage.setItem(
-      'loggedBlogappUser', JSON.stringify(user)
-    )
-    setUser(user)
-    setUsername('')
-    setPassword('')
+      blogService.setToken(user.token)
+      window.localStorage.setItem(
+        'loggedBlogappUser', JSON.stringify(user)
+      )
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch {
+      setNotification('Wrong username or password')
+      setError(true)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
   }
 
   const handleLogout = async (event) => {
@@ -50,17 +64,33 @@ const App = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    const newBlog = await blogService.create({ title, author, url })
-    setBlogs(blogs.concat(newBlog))
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+    try {
+      const newBlog = await blogService.create({ title, author, url })
+      setBlogs(blogs.concat(newBlog))
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+      setNotification(`A new blog ${newBlog.title} by ${newBlog.author} added`)
+      setError(false)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    } catch {
+      setNotification('Could not add the blog')
+      setError(true)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
   }
 
   if (user === null) {
     return (
       <div>
         <h2>Log in to application</h2>
+
+        <Notification message={notification} error={error} />
+
         <form onSubmit={handleLogin}>
           <div>
             <label>
@@ -91,6 +121,8 @@ const App = () => {
   return (
     <div>
       <h2>Blogs</h2>
+
+      <Notification message={notification} error={error} />
 
       <div>
         <p>{user.name} logged in</p>
