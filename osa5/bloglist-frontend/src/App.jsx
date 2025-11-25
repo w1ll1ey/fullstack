@@ -125,6 +125,9 @@ const App = () => {
           key={blog.id}
           blog={blog}
           name={user.name}
+          blogService={blogService}
+          setBlogs={setBlogs}
+          blogs={blogs}
         />
       )}
     </div>
