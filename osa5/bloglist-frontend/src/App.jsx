@@ -61,6 +61,8 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
   }
 
+  blogs.sort((a, b) => b.likes - a.likes)
+
   if (user === null) {
     return (
       <div>
