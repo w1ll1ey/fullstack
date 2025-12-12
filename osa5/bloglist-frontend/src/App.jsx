@@ -130,6 +130,8 @@ const App = () => {
           blogService={blogService}
           setBlogs={setBlogs}
           blogs={blogs}
+          setNotification={setNotification}
+          setError={setError}
         />
       )}
     </div>

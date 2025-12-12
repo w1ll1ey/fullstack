@@ -5,7 +5,9 @@ const Blog = ({
   name,
   blogService,
   setBlogs,
-  blogs
+  blogs,
+  setNotification,
+  setError
 }) => {
   const [extendedId, setExtendedId] = useState(null)
 
@@ -19,7 +21,27 @@ const Blog = ({
 
   const handleLike = async (blog) => {
     const updatedBlog = await blogService.update({ ...blog, likes: blog.likes + 1 })
-    setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
+    setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : { ...updatedBlog, user: blog.user }))
+  }
+
+  const handleRemoval = async (blog) => {
+    try {
+      if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+        await blogService.remove(blog)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        setNotification(`${blog.title} removed.`)
+        setError(false)
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+      }
+    } catch {
+      setNotification('Could not remove the blog')
+      setError(true)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
   }
 
   const infoForm = () => {
@@ -29,7 +51,11 @@ const Blog = ({
         <br />
         likes {blog.likes} <button onClick={() => (handleLike(blog))}>like</button>
         <br />
-        {name}
+        {blog.user.name}
+        <br />
+        {blog.user.name === name && (
+          <button onClick={() => (handleRemoval(blog))}>remove</button>
+        )}
       </div>
     )
   }
