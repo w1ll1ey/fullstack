@@ -64,7 +64,7 @@ const Blog = ({
     <div style={blogStyle}>
       {blog.title} {blog.author}
       <button onClick={() => setExtendedId(prev => prev === blog.id ? null : blog.id)}>
-        {extendedId === blog.id ? "hide" : "view"}
+        {extendedId === blog.id ? 'hide' : 'view'}
       </button>
       {extendedId && infoForm()}
     </div>
