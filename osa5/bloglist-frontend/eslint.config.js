@@ -14,7 +14,8 @@ export default [
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
         sourceType: 'module'
-      }
+      },
+      ...globals.vitest
     },
     plugins: {
       'react-hooks': reactHooks,
