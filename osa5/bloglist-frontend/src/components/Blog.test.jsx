@@ -2,13 +2,17 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
-test('renders content', () => {
-    const blog = {
-        title: 'Blog about something',
-        url: 'www.something.com',
-        likes: 67
+const blog = {
+    id: '123',
+    title: 'Blog about something',
+    url: 'www.something.com',
+    likes: 67,
+    user: {
+        name: 'Someone'
     }
+}
 
+test('renders content', () => {
     render(<Blog blog={blog} />)
 
     const title = screen.getByText('Blog about something')
@@ -19,16 +23,6 @@ test('renders content', () => {
 })
 
 test('renders rest of the content when pressing view', async () => {
-    const blog = {
-        id: '123',
-        title: 'Blog about something',
-        url: 'www.something.com',
-        likes: 67,
-        user: {
-            name: 'Someone'
-        }
-    }
-
     render(<Blog blog={blog} />)
 
     const user = userEvent.setup()
@@ -44,4 +38,22 @@ test('renders rest of the content when pressing view', async () => {
     const username = screen.getByText(
         'Someone', { exact: false }
     )
+})
+
+test('clicking the like button twice calls event handler twice', async () => {
+    const mockHandler = vi.fn()
+
+    render(
+        <Blog blog={blog} handleLike={mockHandler} />
+    )
+
+    const user = userEvent.setup()
+    const button1 = screen.getByText('view')
+    await user.click(button1)
+    const button2 = screen.getByText('like')
+    await user.click(button2)
+    await user.click(button2)
+
+    expect(mockHandler.mock.calls).toHaveLength(2)
+
 })

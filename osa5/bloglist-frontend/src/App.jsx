@@ -61,6 +61,31 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
   }
 
+  const handleLike = async (blog) => {
+    const updatedBlog = await blogService.update({ ...blog, likes: blog.likes + 1 })
+    setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : { ...updatedBlog, user: blog.user }))
+  }
+
+  const handleRemoval = async (blog) => {
+    try {
+      if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+        await blogService.remove(blog)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        setNotification(`${blog.title} removed.`)
+        setError(false)
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+      }
+    } catch {
+      setNotification('Could not remove the blog')
+      setError(true)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
+  }
+
   blogs.sort((a, b) => b.likes - a.likes)
 
   if (user === null) {
@@ -127,11 +152,8 @@ const App = () => {
           key={blog.id}
           blog={blog}
           name={user.name}
-          blogService={blogService}
-          setBlogs={setBlogs}
-          blogs={blogs}
-          setNotification={setNotification}
-          setError={setError}
+          handleLike={handleLike}
+          handleRemoval={handleRemoval}
         />
       )}
     </div>

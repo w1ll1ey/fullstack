@@ -3,11 +3,8 @@ import { useState } from 'react'
 const Blog = ({
   blog,
   name,
-  blogService,
-  setBlogs,
-  blogs,
-  setNotification,
-  setError
+  handleLike,
+  handleRemoval
 }) => {
   const [extendedId, setExtendedId] = useState(null)
 
@@ -17,31 +14,6 @@ const Blog = ({
     border: 'solid',
     borderWidth: 1,
     marginBottom: 5
-  }
-
-  const handleLike = async (blog) => {
-    const updatedBlog = await blogService.update({ ...blog, likes: blog.likes + 1 })
-    setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : { ...updatedBlog, user: blog.user }))
-  }
-
-  const handleRemoval = async (blog) => {
-    try {
-      if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-        await blogService.remove(blog)
-        setBlogs(blogs.filter(b => b.id !== blog.id))
-        setNotification(`${blog.title} removed.`)
-        setError(false)
-        setTimeout(() => {
-          setNotification(null)
-        }, 5000)
-      }
-    } catch {
-      setNotification('Could not remove the blog')
-      setError(true)
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
-    }
   }
 
   const infoForm = () => {
