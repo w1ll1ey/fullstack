@@ -1,39 +1,22 @@
 import { useState } from 'react'
 
-const CreateForm = ({
-  blogService,
-  blogs,
-  setBlogs,
-  setNotification,
-  setError,
-  createFormRef
-}) => {
+const CreateForm = ({ createBlog }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault()
 
-    try {
-      const newBlog = await blogService.create({ title, author, url })
-      createFormRef.current.toggleVisibility()
-      setBlogs(blogs.concat(newBlog))
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-      setNotification(`A new blog ${newBlog.title} by ${newBlog.author} added`)
-      setError(false)
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
-    } catch {
-      setNotification('Could not add the blog')
-      setError(true)
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
-    }
+    createBlog({
+      title: title,
+      author: author,
+      url: url
+    })
+
+    setTitle('')
+    setAuthor('')
+    setUrl('')
   }
 
   return (
@@ -43,7 +26,7 @@ const CreateForm = ({
       <form onSubmit={handleSubmit}>
         <div>
           <label>
-                        title
+            title
             <input
               type="text"
               value={title}
@@ -53,7 +36,7 @@ const CreateForm = ({
         </div>
         <div>
           <label>
-                        author
+            author
             <input
               type="text"
               value={author}
@@ -63,13 +46,13 @@ const CreateForm = ({
         </div>
         <div>
           <label>
-                        url
+            url
+            <input
+              type="text"
+              value={url}
+              onChange={({ target }) => setUrl(target.value)}
+            />
           </label>
-          <input
-            type="text"
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
-          />
         </div>
         <button type="submit">create</button>
       </form>

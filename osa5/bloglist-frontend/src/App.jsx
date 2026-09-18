@@ -86,6 +86,26 @@ const App = () => {
     }
   }
 
+  const createBlog = async (newBlogObject) => {
+
+    try {
+      const newBlog = await blogService.create(newBlogObject)
+      createFormRef.current.toggleVisibility()
+      setBlogs(blogs.concat(newBlog))
+      setNotification(`A new blog ${newBlog.title} by ${newBlog.author} added`)
+      setError(false)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    } catch {
+      setNotification('Could not add the blog')
+      setError(true)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+    }
+  }
+
   blogs.sort((a, b) => b.likes - a.likes)
 
   if (user === null) {
@@ -138,12 +158,7 @@ const App = () => {
 
       <Togglable buttonLabel="create new blog" ref={createFormRef}>
         <CreateForm
-          blogService={blogService}
-          blogs={blogs}
-          setBlogs={setBlogs}
-          setNotification={setNotification}
-          setError={setError}
-          createFormRef={createFormRef}
+          createBlog={createBlog}
         />
       </Togglable>
 
