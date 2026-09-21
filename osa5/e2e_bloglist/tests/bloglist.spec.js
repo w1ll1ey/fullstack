@@ -41,16 +41,29 @@ describe('Blog app', () => {
       await page.getByLabel('username').fill('testi')
       await page.getByLabel('password').fill('salainen')
       await page.getByRole('button', { name: 'login' }).click()
-    })
 
-    test('a new blog can be created', async ({ page }) => {
       await page.getByRole('button', { name: 'create new blog' }).click()
       await page.getByLabel('title').fill('Blogi')
       await page.getByLabel('author').fill('Kirjoittaja')
       await page.getByLabel('url').fill('www.nettisivu.com')
       await page.getByRole('button', { name: 'create' }).click()
+    })
 
-      await expect(page.getByText('Blogi Kirjoittaja')).toBeVisible()
+    test('a new blog can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByLabel('title').fill('Uusi blogi')
+      await page.getByLabel('author').fill('Kirjoittaja')
+      await page.getByLabel('url').fill('www.nettisivu.com')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await expect(page.getByText('Uusi blogi Kirjoittaja')).toBeVisible()
+    })
+
+    test('a blog can be liked', async ({ page }) => {
+      await page.getByRole('button', { name: 'view' }).click()
+      await page.getByRole('button', { name: 'like' }).click()
+      
+      await expect(page.getByText('likes 1')).toBeVisible()
     })
   })
 })
