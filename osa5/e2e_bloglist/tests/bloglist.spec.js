@@ -14,12 +14,12 @@ describe('Blog app', () => {
     await page.goto('http://localhost:5173')
   })
 
-  test('Login form is shown', async ({ page }) => {
+  test('login form is shown', async ({ page }) => {
     await expect(page.getByText('Log in to application')).toBeVisible()
   })
 
   describe('Login', () => {
-    test('Succeeds with correct credentials', async ({ page }) => {
+    test('succeeds with correct credentials', async ({ page }) => {
       await page.getByLabel('username').fill('testi')
       await page.getByLabel('password').fill('salainen')
       await page.getByRole('button', { name: 'login' }).click()
@@ -27,12 +27,30 @@ describe('Blog app', () => {
       await expect(page.getByText('Testi Käyttäjä logged in')).toBeVisible()
     })
 
-    test('Fails with incorrect credentials', async ({ page }) => {
+    test('fails with incorrect credentials', async ({ page }) => {
       await page.getByLabel('username').fill('testi')
       await page.getByLabel('password').fill('salasana')
       await page.getByRole('button', { name: 'login' }).click()
 
-      await expect(page.getByText('Wrong username or password'))
+      await expect(page.getByText('Wrong username or password')).toBeVisible()
+    })
+  })
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page }) => {
+      await page.getByLabel('username').fill('testi')
+      await page.getByLabel('password').fill('salainen')
+      await page.getByRole('button', { name: 'login' }).click()
+    })
+
+    test('a new blog can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByLabel('title').fill('Blogi')
+      await page.getByLabel('author').fill('Kirjoittaja')
+      await page.getByLabel('url').fill('www.nettisivu.com')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await expect(page.getByText('Blogi Kirjoittaja')).toBeVisible()
     })
   })
 })
