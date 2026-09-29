@@ -33,7 +33,7 @@ const Blog = ({
   }
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blog'>
       {blog.title} {blog.author}
       <button onClick={() => setExtendedId(prev => prev === blog.id ? null : blog.id)}>
         {extendedId === blog.id ? 'hide' : 'view'}

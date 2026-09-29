@@ -90,5 +90,34 @@ describe('Blog app', () => {
       
       await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
     })
+
+    test('blogs are ordered from most liked to least liked', async ({ page }) => {
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByLabel('title').fill('Blogi2')
+      await page.getByLabel('author').fill('Kirjoittaja2')
+      await page.getByLabel('url').fill('www.nettisivu2.com')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByLabel('title').fill('Blogi3')
+      await page.getByLabel('author').fill('Kirjoittaja3')
+      await page.getByLabel('url').fill('www.nettisivu3.com')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      await page.getByText('Blogi2 Kirjoittaja2').getByRole('button', { name: 'view' }).click()
+      await page.getByRole('button', { name: 'like' }).click()
+      await expect(page.getByText('Blogi2 Kirjoittaja2').getByText('likes 1')).toBeVisible()
+
+      await page.getByText('Blogi3 Kirjoittaja3').getByRole('button', { name: 'view' }).click()
+      await page.getByText('Blogi3 Kirjoittaja3').getByRole('button', { name: 'like' }).click()
+      await expect(page.getByText('Blogi3 Kirjoittaja3').getByText('likes 1')).toBeVisible()
+      await page.getByText('Blogi3 Kirjoittaja3').getByRole('button', { name: 'like' }).click()
+      await expect(page.getByText('Blogi3 Kirjoittaja3').getByText('likes 2')).toBeVisible()
+
+      const blogs = await page.locator('.blog').allTextContents()
+      await expect(blogs[0]).toContain('Blogi3')
+      await expect(blogs[1]).toContain('Blogi2')
+      await expect(blogs[2]).toContain('Blogi')
+    })
   })
 })
