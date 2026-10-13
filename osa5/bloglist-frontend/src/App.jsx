@@ -1,20 +1,25 @@
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
+import BlogList from './components/BlogList'
+import LoginForm from './components/Login'
 import Notification from './components/Notification'
+import {
+  Routes, Route, Link
+} from 'react-router-dom'
 import CreateForm from './components/Create'
 import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import './index.css'
+import { useNavigate } from 'react-router-dom'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState(null)
   const [error, setError] = useState(null)
   const createFormRef = useRef()
+  const navigate = useNavigate()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -31,8 +36,7 @@ const App = () => {
     }
   }, [])
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async ({ username, password }) => {
     try {
       const user = await loginService.login({
         username, password
@@ -43,8 +47,7 @@ const App = () => {
         'loggedBlogappUser', JSON.stringify(user)
       )
       setUser(user)
-      setUsername('')
-      setPassword('')
+      navigate('/')
     } catch {
       setNotification('Wrong username or password')
       setError(true)
@@ -55,10 +58,10 @@ const App = () => {
   }
 
   const handleLogout = async (event) => {
-    event.preventDefault()
     setUser(null)
 
     window.localStorage.removeItem('loggedBlogappUser')
+    navigate('/')
   }
 
   const handleLike = async (blog) => {
@@ -108,70 +111,47 @@ const App = () => {
 
   blogs.sort((a, b) => b.likes - a.likes)
 
-  if (user === null) {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-
-        <Notification message={notification} error={error} />
-
-        <form onSubmit={handleLogin}>
-          <div>
-            <label>
-              username
-              <input
-                type="text"
-                value={username}
-                onChange={({ target }) => setUsername(target.value)}
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              password
-              <input
-                type="password"
-                value={password}
-                onChange={({ target }) => setPassword(target.value)}
-              />
-            </label>
-          </div>
-          <button type="submit">login</button>
-        </form>
-      </div>
-    )
+  const padding = {
+    padding: 5
   }
 
   return (
-    <div>
-      <h2>Blogs</h2>
+    <>
+      <div>
+        <Link style={padding} to='/'>blogs</Link>
+        {user ? (<button onClick={handleLogout}>logout</button>)
+          : <Link style={padding} to='/login'>login</Link>}
+      </div>
+
+      <Routes>
+        <Route path='/' element={
+          <BlogList
+            blogs={blogs}
+            handleLike={handleLike}
+            handleRemoval={handleRemoval}
+            user={user}
+          />
+        } />
+        <Route path='login' element={
+          <LoginForm
+            handleLogin={handleLogin}
+            notification={notification}
+            error={error}
+          />
+        } />
+      </Routes>
+
 
       <Notification message={notification} error={error} />
 
-      <div>
-        <p>{user.name} logged in</p>
-
-        <form onSubmit={handleLogout}>
-          <button type="submit">logout</button>
-        </form>
-      </div>
-
-      <Togglable buttonLabel="create new blog" ref={createFormRef}>
-        <CreateForm
-          createBlog={createBlog}
-        />
-      </Togglable>
-
-      {blogs.map(blog =>
-        <Blog
-          key={blog.id}
-          blog={blog}
-          name={user.name}
-          handleLike={handleLike}
-          handleRemoval={handleRemoval}
-        />
+      {user !== null && (
+        <Togglable buttonLabel="create new blog" ref={createFormRef}>
+          <CreateForm
+            createBlog={createBlog}
+          />
+        </Togglable>
       )}
-    </div>
+    </>
   )
 }
 
