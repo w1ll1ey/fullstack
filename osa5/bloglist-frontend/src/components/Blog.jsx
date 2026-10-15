@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
 
 const Blog = ({
   blog,
@@ -7,38 +8,24 @@ const Blog = ({
   handleRemoval
 }) => {
   const [extendedId, setExtendedId] = useState(null)
+  const id = useParams().id
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
-  }
-
-  const infoForm = () => {
-    return (
-      <div>
-        {blog.url}
-        <br />
-        likes {blog.likes} <button onClick={() => (handleLike(blog))}>like</button>
-        <br />
-        {blog.user.name}
-        <br />
-        {blog.user.name === name && (
-          <button onClick={() => (handleRemoval(blog))}>remove</button>
-        )}
-      </div>
-    )
+  if (!blog) {
+    return null
   }
 
   return (
-    <div style={blogStyle} className='blog'>
-      {blog.title} {blog.author}
-      <button onClick={() => setExtendedId(prev => prev === blog.id ? null : blog.id)}>
-        {extendedId === blog.id ? 'hide' : 'view'}
-      </button>
-      {extendedId && infoForm()}
+    <div>
+      <h2>{blog.author}: {blog.title}</h2>
+      <a href={blog.url.startsWith('http') ? blog.url : 'https://' + blog.url} target=" blank" rel="noopener noreferrer">{blog.url}</a>
+      <br />
+      likes {blog.likes} {name && <button onClick={() => (handleLike(blog))}>like</button>}
+      <br />
+      Added by {blog.user.name}
+      <br />
+      {blog.user.name === name && (
+        <button onClick={() => (handleRemoval(blog))}>remove</button>
+      )}
     </div>
   )
 }

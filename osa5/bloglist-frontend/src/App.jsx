@@ -1,17 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
+import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom'
 import Blog from './components/Blog'
 import BlogList from './components/BlogList'
 import LoginForm from './components/Login'
 import Notification from './components/Notification'
-import {
-  Routes, Route, Link
-} from 'react-router-dom'
 import CreateForm from './components/Create'
 import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import './index.css'
-import { useNavigate } from 'react-router-dom'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -115,6 +112,11 @@ const App = () => {
     padding: 5
   }
 
+  const match = useMatch('/blogs/:id')
+  const blog = match
+    ? blogs.find(blog => blog.id === match.params.id)
+    : null
+
   return (
     <>
       <div>
@@ -124,6 +126,14 @@ const App = () => {
       </div>
 
       <Routes>
+        <Route path='/blogs/:id' element={
+          <Blog
+            blog={blog}
+            name={user ? user.name : null}
+            handleLike={handleLike}
+            handleRemoval={handleRemoval}
+          />
+        } />
         <Route path='/' element={
           <BlogList
             blogs={blogs}
