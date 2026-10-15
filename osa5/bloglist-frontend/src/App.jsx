@@ -76,6 +76,7 @@ const App = () => {
         setTimeout(() => {
           setNotification(null)
         }, 5000)
+        navigate('/')
       }
     } catch {
       setNotification('Could not remove the blog')
@@ -90,13 +91,13 @@ const App = () => {
 
     try {
       const newBlog = await blogService.create(newBlogObject)
-      createFormRef.current.toggleVisibility()
       setBlogs(blogs.concat({ ...newBlog, user }))
       setNotification(`A new blog ${newBlog.title} by ${newBlog.author} added`)
       setError(false)
       setTimeout(() => {
         setNotification(null)
       }, 5000)
+      navigate('/')
     } catch {
       setNotification('Could not add the blog')
       setError(true)
@@ -121,9 +122,12 @@ const App = () => {
     <>
       <div>
         <Link style={padding} to='/'>blogs</Link>
+        {user && <Link style={padding} to='/create'>new blog</Link>}
         {user ? (<button onClick={handleLogout}>logout</button>)
           : <Link style={padding} to='/login'>login</Link>}
       </div>
+
+      <Notification message={notification} error={error} />
 
       <Routes>
         <Route path='/blogs/:id' element={
@@ -149,18 +153,12 @@ const App = () => {
             error={error}
           />
         } />
-      </Routes>
-
-
-      <Notification message={notification} error={error} />
-
-      {user !== null && (
-        <Togglable buttonLabel="create new blog" ref={createFormRef}>
+        <Route path='create' element={
           <CreateForm
             createBlog={createBlog}
           />
-        </Togglable>
-      )}
+        } />
+      </Routes>
     </>
   )
 }
